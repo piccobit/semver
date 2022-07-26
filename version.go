@@ -11,37 +11,37 @@ import (
 	"strings"
 )
 
-// The compiled version of the regex created at init() is cached here so it
+// The compiled version of the regex created at init() is cached here, so it
 // only needs to be created once.
 var versionRegex *regexp.Regexp
 
 var (
 	// ErrInvalidSemVer is returned a version is found to be invalid when
 	// being parsed.
-	ErrInvalidSemVer = errors.New("Invalid Semantic Version")
+	ErrInvalidSemVer = errors.New("invalid Semantic Version")
 
 	// ErrEmptyString is returned when an empty string is passed in for parsing.
-	ErrEmptyString = errors.New("Version string empty")
+	ErrEmptyString = errors.New("version string empty")
 
 	// ErrInvalidCharacters is returned when invalid characters are found as
 	// part of a version
-	ErrInvalidCharacters = errors.New("Invalid characters in version")
+	ErrInvalidCharacters = errors.New("invalid characters in version")
 
 	// ErrSegmentStartsZero is returned when a version segment starts with 0.
 	// This is invalid in SemVer.
-	ErrSegmentStartsZero = errors.New("Version segment starts with 0")
+	ErrSegmentStartsZero = errors.New("version segment starts with 0")
 
 	// ErrInvalidMetadata is returned when the metadata is an invalid format
-	ErrInvalidMetadata = errors.New("Invalid Metadata string")
+	ErrInvalidMetadata = errors.New("invalid Metadata string")
 
 	// ErrInvalidPrerelease is returned when the pre-release is an invalid format
-	ErrInvalidPrerelease = errors.New("Invalid Prerelease string")
+	ErrInvalidPrerelease = errors.New("invalid Prerelease string")
 )
 
 // semVerRegex is the regular expression used to parse a semantic version.
-const semVerRegex string = `v?([0-9]+)(\.[0-9]+)?(\.[0-9]+)?` +
-	`(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?` +
-	`(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?`
+const semVerRegex string = `v?(0|[1-9]\d*)(\.(?:0|[1-9]\d*))?(\.(?:0|[1-9]\d*))?` +
+	`(-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?` +
+	`(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?`
 
 // Version represents a single semantic version.
 type Version struct {
@@ -55,8 +55,8 @@ func init() {
 	versionRegex = regexp.MustCompile("^" + semVerRegex + "$")
 }
 
-const num string = "0123456789"
-const allowed string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-" + num
+const num = "0123456789"
+const allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-" + num
 
 // StrictNewVersion parses a given version and returns an instance of Version or
 // an error if unable to parse the version. Only parses valid semantic versions.
@@ -168,13 +168,13 @@ func NewVersion(v string) (*Version, error) {
 	var err error
 	sv.major, err = strconv.ParseUint(m[1], 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing version segment: %s", err)
+		return nil, fmt.Errorf("error parsing version segment: %s", err)
 	}
 
 	if m[2] != "" {
 		sv.minor, err = strconv.ParseUint(strings.TrimPrefix(m[2], "."), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing version segment: %s", err)
+			return nil, fmt.Errorf("error parsing version segment: %s", err)
 		}
 	} else {
 		sv.minor = 0
@@ -183,7 +183,7 @@ func NewVersion(v string) (*Version, error) {
 	if m[3] != "" {
 		sv.patch, err = strconv.ParseUint(strings.TrimPrefix(m[3], "."), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing version segment: %s", err)
+			return nil, fmt.Errorf("error parsing version segment: %s", err)
 		}
 	} else {
 		sv.patch = 0
@@ -219,17 +219,17 @@ func MustParse(v string) *Version {
 // String converts a Version object to a string.
 // Note, if the original version contained a leading v this version will not.
 // See the Original() method to retrieve the original value. Semantic Versions
-// don't contain a leading v per the spec. Instead it's optional on
+// don't contain a leading v per the spec. Instead, it's optional on
 // implementation.
-func (v Version) String() string {
+func (v *Version) String() string {
 	var buf bytes.Buffer
 
-	fmt.Fprintf(&buf, "%d.%d.%d", v.major, v.minor, v.patch)
+	_, _ = fmt.Fprintf(&buf, "%d.%d.%d", v.major, v.minor, v.patch)
 	if v.pre != "" {
-		fmt.Fprintf(&buf, "-%s", v.pre)
+		_, _ = fmt.Fprintf(&buf, "-%s", v.pre)
 	}
 	if v.metadata != "" {
-		fmt.Fprintf(&buf, "+%s", v.metadata)
+		_, _ = fmt.Fprintf(&buf, "+%s", v.metadata)
 	}
 
 	return buf.String()
@@ -241,32 +241,32 @@ func (v *Version) Original() string {
 }
 
 // Major returns the major version.
-func (v Version) Major() uint64 {
+func (v *Version) Major() uint64 {
 	return v.major
 }
 
 // Minor returns the minor version.
-func (v Version) Minor() uint64 {
+func (v *Version) Minor() uint64 {
 	return v.minor
 }
 
 // Patch returns the patch version.
-func (v Version) Patch() uint64 {
+func (v *Version) Patch() uint64 {
 	return v.patch
 }
 
-// Prerelease returns the pre-release version.
-func (v Version) Prerelease() string {
+// Prerelease returns the prerelease version.
+func (v *Version) Prerelease() string {
 	return v.pre
 }
 
 // Metadata returns the metadata on the version.
-func (v Version) Metadata() string {
+func (v *Version) Metadata() string {
 	return v.metadata
 }
 
 // originalVPrefix returns the original 'v' prefix if any.
-func (v Version) originalVPrefix() string {
+func (v *Version) originalVPrefix() string {
 
 	// Note, only lowercase v is supported as a prefix by the parser.
 	if v.original != "" && v.original[:1] == "v" {
@@ -280,7 +280,7 @@ func (v Version) originalVPrefix() string {
 // it unsets metadata and prerelease values, increments patch number.
 // If the current version has any of prerelease or metadata information,
 // it unsets both values and keeps current patch value
-func (v Version) IncPatch() Version {
+func (v *Version) IncPatch() Version {
 	vNext := v
 	// according to http://semver.org/#spec-item-9
 	// Pre-release versions have a lower precedence than the associated normal version.
@@ -295,7 +295,7 @@ func (v Version) IncPatch() Version {
 		vNext.patch = v.patch + 1
 	}
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return vNext
+	return *vNext
 }
 
 // IncMinor produces the next minor version.
@@ -303,14 +303,14 @@ func (v Version) IncPatch() Version {
 // Increments minor number.
 // Unsets metadata.
 // Unsets prerelease status.
-func (v Version) IncMinor() Version {
+func (v *Version) IncMinor() Version {
 	vNext := v
 	vNext.metadata = ""
 	vNext.pre = ""
 	vNext.patch = 0
 	vNext.minor = v.minor + 1
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return vNext
+	return *vNext
 }
 
 // IncMajor produces the next major version.
@@ -319,7 +319,7 @@ func (v Version) IncMinor() Version {
 // Increments major number.
 // Unsets metadata.
 // Unsets prerelease status.
-func (v Version) IncMajor() Version {
+func (v *Version) IncMajor() Version {
 	vNext := v
 	vNext.metadata = ""
 	vNext.pre = ""
@@ -327,35 +327,35 @@ func (v Version) IncMajor() Version {
 	vNext.minor = 0
 	vNext.major = v.major + 1
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return vNext
+	return *vNext
 }
 
 // SetPrerelease defines the prerelease value.
 // Value must not include the required 'hyphen' prefix.
-func (v Version) SetPrerelease(prerelease string) (Version, error) {
+func (v *Version) SetPrerelease(prerelease string) (Version, error) {
 	vNext := v
 	if len(prerelease) > 0 {
 		if err := validatePrerelease(prerelease); err != nil {
-			return vNext, err
+			return *vNext, err
 		}
 	}
 	vNext.pre = prerelease
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return vNext, nil
+	return *vNext, nil
 }
 
 // SetMetadata defines metadata value.
 // Value must not include the required 'plus' prefix.
-func (v Version) SetMetadata(metadata string) (Version, error) {
+func (v *Version) SetMetadata(metadata string) (Version, error) {
 	vNext := v
 	if len(metadata) > 0 {
 		if err := validateMetadata(metadata); err != nil {
-			return vNext, err
+			return *vNext, err
 		}
 	}
 	vNext.metadata = metadata
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return vNext, nil
+	return *vNext, nil
 }
 
 // LessThan tests if one version is less than another one.
@@ -432,7 +432,7 @@ func (v *Version) UnmarshalJSON(b []byte) error {
 }
 
 // MarshalJSON implements JSON.Marshaler interface.
-func (v Version) MarshalJSON() ([]byte, error) {
+func (v *Version) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.String())
 }
 
@@ -454,7 +454,7 @@ func (v *Version) Scan(value interface{}) error {
 }
 
 // Value implements the Driver.Valuer interface.
-func (v Version) Value() (driver.Value, error) {
+func (v *Version) Value() (driver.Value, error) {
 	return v.String(), nil
 }
 
@@ -536,7 +536,7 @@ func comparePrePart(s, o string) int {
 
 	// When comparing strings "99" is greater than "103". To handle
 	// cases like this we need to detect numbers and compare them. According
-	// to the semver spec, numbers are always positive. If there is a - at the
+	// to the semver spec, numbers are always positive. If there is an - at the
 	// start like -99 this is to be evaluated as an alphanum. numbers always
 	// have precedence over alphanum. Parsing as Uints because negative numbers
 	// are ignored.
