@@ -458,6 +458,23 @@ func (v *Version) Value() (driver.Value, error) {
 	return v.String(), nil
 }
 
+// UnmarshalText implements the encoding.TextUnmarshaler interface.
+func (v *Version) UnmarshalText(text []byte) error {
+	temp, err := NewVersion(string(text))
+	if err != nil {
+		return err
+	}
+
+	*v = *temp
+
+	return nil
+}
+
+// MarshalText implements the encoding.TextMarshaler interface.
+func (v *Version) MarshalText() ([]byte, error) {
+	return []byte(v.String()), nil
+}
+
 func compareSegment(v, o uint64) int {
 	if v < o {
 		return -1
