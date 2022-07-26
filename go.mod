@@ -1,3 +1,3 @@
-module github.com/piccobit/semver/v3
+module semver/v4
 
 go 1.18
