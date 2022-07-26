@@ -41,6 +41,8 @@ func TestStrictNewVersion(t *testing.T) {
 		{"1.2.2147483648", false},
 		{"1.2147483648.3", false},
 		{"2147483648.3.0", false},
+		{"1.2.3-0815-alpha.4712", false},
+		{"1.2.3-0815.4712", true},
 	}
 
 	for _, tc := range tests {
@@ -587,6 +589,12 @@ func TestValidatePrerelease(t *testing.T) {
 		{"alpha.01", ErrSegmentStartsZero},
 		{"foo☃︎", ErrInvalidPrerelease},
 		{"alpha.0-1", nil},
+		{"alpha-01", nil},
+		{"0815-01", nil},
+		{"0815.01", ErrSegmentStartsZero},
+		{"0815.01-alpha", ErrSegmentStartsZero},
+		{"4712.01-alpha", nil},
+		{"4712.01.alpha", ErrSegmentStartsZero},
 	}
 
 	for _, tc := range tests {
