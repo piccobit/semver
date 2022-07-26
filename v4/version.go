@@ -281,7 +281,7 @@ func (v *Version) originalVPrefix() string {
 // If the current version has any of prerelease or metadata information,
 // it unsets both values and keeps current patch value
 func (v *Version) IncPatch() Version {
-	vNext := v
+	vNext := *v
 	// according to http://semver.org/#spec-item-9
 	// Pre-release versions have a lower precedence than the associated normal version.
 	// according to http://semver.org/#spec-item-10
@@ -295,7 +295,7 @@ func (v *Version) IncPatch() Version {
 		vNext.patch = v.patch + 1
 	}
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return *vNext
+	return vNext
 }
 
 // IncMinor produces the next minor version.
@@ -304,13 +304,13 @@ func (v *Version) IncPatch() Version {
 // Unsets metadata.
 // Unsets prerelease status.
 func (v *Version) IncMinor() Version {
-	vNext := v
+	vNext := *v
 	vNext.metadata = ""
 	vNext.pre = ""
 	vNext.patch = 0
 	vNext.minor = v.minor + 1
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return *vNext
+	return vNext
 }
 
 // IncMajor produces the next major version.
@@ -320,42 +320,42 @@ func (v *Version) IncMinor() Version {
 // Unsets metadata.
 // Unsets prerelease status.
 func (v *Version) IncMajor() Version {
-	vNext := v
+	vNext := *v
 	vNext.metadata = ""
 	vNext.pre = ""
 	vNext.patch = 0
 	vNext.minor = 0
 	vNext.major = v.major + 1
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return *vNext
+	return vNext
 }
 
 // SetPrerelease defines the prerelease value.
 // Value must not include the required 'hyphen' prefix.
 func (v *Version) SetPrerelease(prerelease string) (Version, error) {
-	vNext := v
+	vNext := *v
 	if len(prerelease) > 0 {
 		if err := validatePrerelease(prerelease); err != nil {
-			return *vNext, err
+			return vNext, err
 		}
 	}
 	vNext.pre = prerelease
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return *vNext, nil
+	return vNext, nil
 }
 
 // SetMetadata defines metadata value.
 // Value must not include the required 'plus' prefix.
 func (v *Version) SetMetadata(metadata string) (Version, error) {
-	vNext := v
+	vNext := *v
 	if len(metadata) > 0 {
 		if err := validateMetadata(metadata); err != nil {
-			return *vNext, err
+			return vNext, err
 		}
 	}
 	vNext.metadata = metadata
 	vNext.original = v.originalVPrefix() + "" + vNext.String()
-	return *vNext, nil
+	return vNext, nil
 }
 
 // LessThan tests if one version is less than another one.
