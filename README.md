@@ -18,12 +18,16 @@ If you are looking for a command line tool for version comparisons please see
 
 ## Package Versions
 
-There are three major versions fo the `semver` package.
+There are four major versions for the `semver` package.
 
-* 3.x.x is the new stable and active version. This version is focused on constraint
+* 4.x.x is the new stable and active version. This version fixes some issues with prereleases and 
+  uses now the official regular expression recommended by [semver.org](https://semver.org). It has
+  a similar API to the v3 releases. The development of this version is on the master
+  branch. There are API breaking changes from v3, all receivers are now using a pointer. 
+  The documentation for this version is below.
+* 3.x.x is the previous stable version. This version is focused on constraint
   compatibility for range handling in other tools from other languages. It has
-  a similar API to the v1 releases. The development of this version is on the master
-  branch. The documentation for this version is below.
+  a similar API to the v1 releases. This version lives on the [3.x branch](https://github.com/piccobit/semver/tree/3.x). 
 * 2.x was developed primarily for [dep](https://github.com/golang/dep). There are
   no tagged releases and the development was performed by [@sdboyer](https://github.com/sdboyer).
   There are API breaking changes from v1. This version lives on the [2.x branch](https://github.com/Masterminds/semver/tree/2.x).
@@ -84,7 +88,7 @@ differences to notes between these two methods of comparison.
 2. When constraint checking is used for checks or validation it will follow a
    different set of rules that are common for ranges with tools like npm/js
    and Rust/Cargo. This includes considering prereleases to be invalid if the
-   ranges does not include one. If you want to have it include pre-releases a
+   ranges does not include one. If you want to have it include prereleases a
    simple solution is to include `-0` in your range.
 3. Constraint ranges can have some complex rules including the shorthand use of
    ~ and ^. For more details on those see the options below.
@@ -111,7 +115,7 @@ v, err := semver.NewVersion("1.3")
 if err != nil {
     // Handle version not being parsable.
 }
-// Check if the version meets the constraints. The a variable will be true.
+// Check if the version meets the constraints. The variable will be true.
 a := c.Check(v)
 ```
 
@@ -144,14 +148,14 @@ example `1.2.3-beta.1 < 1.2.3`.
 According to the Semantic Version specification prereleases may not be
 API compliant with their release counterpart. It says,
 
-> A pre-release version indicates that the version is unstable and might not satisfy the intended compatibility requirements as denoted by its associated normal version.
+> A prerelease version indicates that the version is unstable and might not satisfy the intended compatibility requirements as denoted by its associated normal version.
 
 SemVer comparisons using constraints without a prerelease comparator will skip
 prerelease versions. For example, `>=1.2.3` will skip prereleases when looking
 at a list of releases while `>=1.2.3-0` will evaluate and find prereleases.
 
-The reason for the `0` as a pre-release version in the example comparison is
-because pre-releases can only contain ASCII alphanumerics and hyphens (along with
+The reason for the `0` as a prerelease version in the example comparison is
+because prereleases can only contain ASCII alphanumerics and hyphens (along with
 `.` separators), per the spec. Sorting happens in ASCII sort order, again per the
 spec. The lowest character is a `0` in ASCII sort order
 (see an [ASCII Table](http://www.asciitable.com/))
